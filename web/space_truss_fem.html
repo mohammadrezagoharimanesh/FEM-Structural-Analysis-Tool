@@ -1,0 +1,1842 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>FEM Goharimanesh</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #0a0e1a;
+            color: #c8d0e0;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            overflow: hidden;
+            touch-action: manipulation;
+        }
+
+        /* ===== TOP HEADER ===== */
+        #header {
+            background: #111827;
+            padding: 6px 12px;
+            border-bottom: 1px solid #1e2a4a;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-shrink: 0;
+            z-index: 20;
+            min-height: 44px;
+        }
+        #header .logo {
+            font-size: 16px;
+            font-weight: 300;
+            color: #60a5fa;
+        }
+        #header .logo span {
+            font-weight: 700;
+            color: #fff;
+        }
+        #header .status-mobile {
+            font-size: 9px;
+            color: #94a3b8;
+            max-width: 50%;
+            text-align: right;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        /* ===== MAIN LAYOUT ===== */
+        #main {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+        }
+
+        /* ===== SIDEBAR ===== */
+        #sidebar {
+            width: 340px;
+            min-width: 340px;
+            background: #111827;
+            padding: 6px 8px;
+            overflow-y: auto;
+            border-right: 1px solid #1e2a4a;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            flex-shrink: 0;
+        }
+        #sidebar::-webkit-scrollbar {
+            width: 3px;
+        }
+        #sidebar::-webkit-scrollbar-thumb {
+            background: #3b82f6;
+            border-radius: 4px;
+        }
+
+        .section {
+            background: #1a2332;
+            border-radius: 5px;
+            padding: 4px 6px;
+            border: 1px solid #1e2a4a;
+        }
+        .section-title {
+            font-size: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #60a5fa;
+            margin-bottom: 2px;
+            font-weight: 600;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .row {
+            display: flex;
+            gap: 2px;
+            align-items: center;
+            flex-wrap: wrap;
+            margin-bottom: 2px;
+        }
+        .row label {
+            font-size: 9px;
+            color: #94a3b8;
+            min-width: 10px;
+        }
+        .row input,
+        .row select {
+            background: #0d1520;
+            border: 1px solid #1e2a4a;
+            color: #e2e8f0;
+            padding: 2px 4px;
+            border-radius: 3px;
+            font-size: 9px;
+            flex: 1;
+            min-width: 25px;
+            height: 22px;
+        }
+        .row input:focus,
+        .row select:focus {
+            outline: none;
+            border-color: #3b82f6;
+        }
+        .row select {
+            flex: 0.5;
+            cursor: pointer;
+            height: 22px;
+        }
+        .row .small {
+            flex: 0.3;
+            min-width: 20px;
+        }
+        .row .medium {
+            flex: 0.5;
+            min-width: 35px;
+        }
+
+        .btn {
+            background: #1e2a4a;
+            border: none;
+            color: #e2e8f0;
+            padding: 2px 8px;
+            border-radius: 3px;
+            font-size: 9px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-weight: 600;
+            height: 22px;
+            touch-action: manipulation;
+        }
+        .btn:hover {
+            background: #3b82f6;
+            transform: scale(1.02);
+        }
+        .btn:active {
+            transform: scale(0.95);
+        }
+        .btn-primary {
+            background: #3b82f6;
+        }
+        .btn-primary:hover {
+            background: #60a5fa;
+        }
+        .btn-success {
+            background: #22c55e;
+        }
+        .btn-success:hover {
+            background: #4ade80;
+        }
+        .btn-danger {
+            background: #ef4444;
+        }
+        .btn-danger:hover {
+            background: #f87171;
+        }
+        .btn-warning {
+            background: #eab308;
+            color: #ffffff;
+        }
+        .btn-warning:hover {
+            background: #facc15;
+        }
+        .btn-sm {
+            padding: 1px 4px;
+            font-size: 7px;
+            height: 16px;
+        }
+        .btn-purple {
+            background: #8b5cf6;
+        }
+        .btn-purple:hover {
+            background: #a78bfa;
+        }
+
+        /* ===== LIST STYLES ===== */
+        .list-container {
+            background: #0d1520;
+            border-radius: 3px;
+            padding: 3px;
+            max-height: 80px;
+            overflow-y: auto;
+        }
+        .list-container::-webkit-scrollbar {
+            width: 3px;
+        }
+        .list-container::-webkit-scrollbar-thumb {
+            background: #3b82f6;
+            border-radius: 4px;
+        }
+
+        .list-item {
+            background: #1a2332;
+            border-radius: 3px;
+            padding: 2px 5px;
+            margin-bottom: 2px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-left: 2px solid #3b82f6;
+            font-size: 8px;
+            min-height: 22px;
+        }
+        .list-item .info {
+            display: flex;
+            gap: 4px;
+            align-items: center;
+            flex-wrap: wrap;
+            flex: 1;
+            overflow: hidden;
+        }
+        .list-item .info .id {
+            color: #60a5fa;
+            font-weight: 700;
+            min-width: 20px;
+            font-size: 8px;
+        }
+        .list-item .info .coords {
+            color: #94a3b8;
+            font-size: 7px;
+        }
+        .list-item .info .props {
+            color: #64748b;
+            font-size: 7px;
+            background: #0d1520;
+            padding: 0 4px;
+            border-radius: 8px;
+        }
+        .list-item .info .stress {
+            color: #facc15;
+            font-size: 7px;
+            font-weight: 600;
+        }
+        .list-item .actions {
+            display: flex;
+            gap: 2px;
+            flex-shrink: 0;
+        }
+        .list-item .actions button {
+            background: transparent;
+            border: none;
+            color: #64748b;
+            cursor: pointer;
+            font-size: 10px;
+            padding: 1px 3px;
+            border-radius: 2px;
+            transition: 0.2s;
+            line-height: 1;
+        }
+        .list-item .actions .edit-btn:hover {
+            color: #60a5fa;
+        }
+        .list-item .actions .del-btn:hover {
+            color: #ef4444;
+        }
+
+        .empty-msg {
+            color: #475569;
+            text-align: center;
+            padding: 6px;
+            font-size: 8px;
+        }
+
+        .badge {
+            background: #3b82f6;
+            padding: 0 6px;
+            border-radius: 8px;
+            font-size: 7px;
+            color: #fff;
+        }
+
+        .unit-label {
+            font-size: 7px;
+            color: #64748b;
+            min-width: 12px;
+        }
+
+        /* ===== RIGHT TOOLBAR ===== */
+        #right-toolbar {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            z-index: 15;
+        }
+        #right-toolbar .btn {
+            background: #1a2332cc;
+            backdrop-filter: blur(4px);
+            border: 1px solid #1e2a4a;
+            padding: 3px 8px;
+            font-size: 8px;
+            height: 22px;
+            min-width: 50px;
+            text-align: left;
+        }
+
+        /* ===== CANVAS ===== */
+        #canvas-container {
+            flex: 1;
+            height: 100%;
+            background: #0a0e1a;
+            position: relative;
+            touch-action: none;
+        }
+
+        /* ===== INFO DISPLAY ===== */
+        #info-display {
+            position: absolute;
+            bottom: 60px;
+            left: 10px;
+            background: #111827cc;
+            backdrop-filter: blur(4px);
+            padding: 4px 8px;
+            border-radius: 6px;
+            border: 1px solid #1e2a4a;
+            font-size: 7px;
+            color: #94a3b8;
+            z-index: 12;
+            max-width: 200px;
+            line-height: 1.4;
+            pointer-events: none;
+        }
+        #info-display .label {
+            color: #60a5fa;
+            font-weight: 600;
+        }
+
+        /* ===== BOTTOM STATUS ===== */
+        #status {
+            position: fixed;
+            bottom: 4px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #111827cc;
+            backdrop-filter: blur(4px);
+            padding: 2px 12px;
+            border-radius: 20px;
+            font-size: 8px;
+            border-left: 2px solid #3b82f6;
+            color: #94a3b8;
+            z-index: 100;
+            max-width: 90%;
+            text-align: center;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        /* ===== MODAL ===== */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 200;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        .modal.active {
+            display: flex;
+        }
+        .modal-content {
+            background: #1a2332;
+            padding: 16px;
+            border-radius: 10px;
+            border: 1px solid #1e2a4a;
+            width: 100%;
+            max-width: 360px;
+        }
+        .modal-content h3 {
+            color: #60a5fa;
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+        .modal-content .row {
+            margin-bottom: 4px;
+        }
+        .modal-content .btn {
+            margin-top: 4px;
+            width: 100%;
+            height: 28px;
+            font-size: 11px;
+        }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 900px) {
+            #sidebar {
+                width: 280px;
+                min-width: 280px;
+                padding: 4px 6px;
+            }
+            #status {
+                font-size: 7px;
+                padding: 2px 10px;
+            }
+            #right-toolbar .btn {
+                font-size: 7px;
+                padding: 2px 6px;
+                height: 18px;
+                min-width: 40px;
+            }
+            #info-display {
+                font-size: 6px;
+                padding: 3px 6px;
+                max-width: 150px;
+                bottom: 50px;
+            }
+            .list-container {
+                max-height: 60px;
+            }
+        }
+
+        @media (max-width: 700px) {
+            #sidebar {
+                width: 100%;
+                min-width: unset;
+                height: 45vh;
+                border-right: none;
+                border-bottom: 1px solid #1e2a4a;
+                flex-shrink: 0;
+            }
+            #canvas-container {
+                height: 55vh;
+                flex: 1;
+            }
+            #main {
+                flex-direction: column;
+            }
+            #status {
+                bottom: 2px;
+                font-size: 7px;
+                padding: 2px 8px;
+                max-width: 95%;
+                white-space: normal;
+            }
+            #right-toolbar {
+                top: 4px;
+                right: 4px;
+                gap: 2px;
+                flex-direction: row;
+                flex-wrap: wrap;
+            }
+            #right-toolbar .btn {
+                font-size: 6px;
+                padding: 1px 5px;
+                height: 16px;
+                min-width: 30px;
+                text-align: center;
+            }
+            #info-display {
+                font-size: 6px;
+                padding: 2px 5px;
+                max-width: 120px;
+                bottom: 40px;
+                left: 4px;
+            }
+            .list-container {
+                max-height: 50px;
+            }
+            .list-item {
+                font-size: 7px;
+                min-height: 18px;
+                padding: 1px 4px;
+            }
+            .list-item .info .id {
+                font-size: 7px;
+                min-width: 16px;
+            }
+            .list-item .info .coords {
+                font-size: 6px;
+            }
+            .list-item .actions button {
+                font-size: 8px;
+                padding: 0 2px;
+            }
+            .section {
+                padding: 3px 4px;
+            }
+            .section-title {
+                font-size: 7px;
+            }
+            .row input,
+            .row select {
+                font-size: 8px;
+                height: 18px;
+                padding: 1px 3px;
+            }
+            .btn {
+                font-size: 8px;
+                height: 18px;
+                padding: 1px 6px;
+            }
+            #header .logo {
+                font-size: 13px;
+            }
+            #header .status-mobile {
+                font-size: 7px;
+                max-width: 40%;
+            }
+            .modal-content {
+                padding: 12px;
+                max-width: 300px;
+            }
+            .modal-content h3 {
+                font-size: 12px;
+            }
+            .modal-content .btn {
+                height: 24px;
+                font-size: 10px;
+            }
+        }
+
+        @media (max-width: 400px) {
+            #sidebar {
+                height: 40vh;
+            }
+            #canvas-container {
+                height: 60vh;
+            }
+            .list-container {
+                max-height: 40px;
+            }
+            #right-toolbar .btn {
+                font-size: 5px;
+                padding: 1px 4px;
+                height: 14px;
+                min-width: 25px;
+            }
+            #info-display {
+                font-size: 5px;
+                padding: 2px 4px;
+                max-width: 80px;
+                bottom: 35px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ===== HEADER ===== -->
+    <div id="header">
+        <div class="logo"><span>FEM</span> Goharimanesh</div>
+        <div class="status-mobile" id="status-mobile">Ready</div>
+    </div>
+
+    <!-- ===== MAIN ===== -->
+    <div id="main">
+
+        <!-- ===== SIDEBAR ===== -->
+        <div id="sidebar">
+            <!-- Units -->
+            <div class="section">
+                <div class="section-title">📐 Units</div>
+                <div class="row">
+                    <label>L</label>
+                    <select id="unit-length">
+                        <option value="m" selected>m</option>
+                        <option value="cm">cm</option>
+                        <option value="mm">mm</option>
+                        <option value="inch">inch</option>
+                        <option value="ft">ft</option>
+                    </select>
+                    <label>F</label>
+                    <select id="unit-force">
+                        <option value="N" selected>N</option>
+                        <option value="kN">kN</option>
+                        <option value="lbf">lbf</option>
+                        <option value="kip">kip</option>
+                    </select>
+                    <label>E</label>
+                    <select id="unit-E">
+                        <option value="GPa" selected>GPa</option>
+                        <option value="MPa">MPa</option>
+                        <option value="kPa">kPa</option>
+                        <option value="Pa">Pa</option>
+                        <option value="psi">psi</option>
+                        <option value="ksi">ksi</option>
+                    </select>
+                </div>
+                <div style="font-size:7px;color:#64748b;text-align:center;" id="unit-display">m · N · GPa</div>
+            </div>
+
+            <!-- Add Node -->
+            <div class="section">
+                <div class="section-title">📍 Add Node</div>
+                <div class="row">
+                    <label>X</label><input type="number" id="nx" value="0" step="10">
+                    <label>Y</label><input type="number" id="ny" value="0" step="10">
+                    <label>Z</label><input type="number" id="nz" value="0" step="10">
+                    <span class="unit-label" id="length-label">m</span>
+                </div>
+                <button class="btn btn-primary" id="btn-node" style="width:100%;">➕ Add Node</button>
+            </div>
+
+            <!-- Add Element -->
+            <div class="section">
+                <div class="section-title">🔗 Add Element</div>
+                <div class="row">
+                    <label>From</label><input type="number" id="el-from" value="1" step="1" class="small">
+                    <label>To</label><input type="number" id="el-to" value="2" step="1" class="small">
+                </div>
+                <div class="row">
+                    <label>A</label><input type="number" id="el-A" value="0.01" step="0.001" class="medium">
+                    <span class="unit-label" id="area-label">m²</span>
+                    <label>E</label><input type="number" id="el-E" value="210" step="1" class="medium">
+                    <span class="unit-label" id="E-label">GPa</span>
+                </div>
+                <button class="btn btn-primary" id="btn-element" style="width:100%;">➕ Add Element</button>
+            </div>
+
+            <!-- Force & Support -->
+            <div class="section">
+                <div class="section-title">⚡ Force / Support</div>
+                <div class="row">
+                    <label>Node</label><input type="number" id="action-node" value="1" step="1" class="small">
+                </div>
+                <div class="row">
+                    <label>Fx</label><input type="number" id="fx" value="0" step="10" class="small">
+                    <label>Fy</label><input type="number" id="fy" value="-100" step="10" class="small">
+                    <label>Fz</label><input type="number" id="fz" value="0" step="10" class="small">
+                    <span class="unit-label" id="force-label">N</span>
+                </div>
+                <div style="display:flex;gap:3px;">
+                    <button class="btn btn-warning" id="btn-force" style="flex:1;">⚡ Force</button>
+                    <button class="btn btn-danger" id="btn-support" style="flex:1;">🔒 Support</button>
+                </div>
+                <div style="display:flex;gap:2px;margin-top:2px;flex-wrap:wrap;">
+                    <span style="font-size:7px;color:#64748b;">DOF:</span>
+                    <button class="btn btn-sm dof-btn" data-dof="0">X</button>
+                    <button class="btn btn-sm dof-btn" data-dof="1">Y</button>
+                    <button class="btn btn-sm dof-btn" data-dof="2">Z</button>
+                    <button class="btn btn-sm dof-btn" data-dof="3">RX</button>
+                    <button class="btn btn-sm dof-btn" data-dof="4">RY</button>
+                    <button class="btn btn-sm dof-btn" data-dof="5">RZ</button>
+                </div>
+            </div>
+
+            <!-- Node List -->
+            <div class="section" style="flex:1; min-height:40px; max-height:90px; display:flex; flex-direction:column;">
+                <div class="section-title">📋 Nodes <span class="badge" id="node-count">0</span></div>
+                <div class="list-container" id="node-list-container">
+                    <div id="node-list"></div>
+                </div>
+            </div>
+
+            <!-- Element List -->
+            <div class="section" style="flex:1; min-height:40px; max-height:90px; display:flex; flex-direction:column;">
+                <div class="section-title">📋 Elements <span class="badge" id="elem-count">0</span></div>
+                <div class="list-container" id="elem-list-container">
+                    <div id="elem-list"></div>
+                </div>
+            </div>
+
+            <!-- Results -->
+            <div class="section" style="flex:0; min-height:25px; max-height:40px;">
+                <div class="section-title">📊 Results</div>
+                <div id="results-display" style="font-size:8px;color:#94a3b8;overflow-y:auto;max-height:30px;line-height:1.3;">
+                    <span style="color:#64748b;">Run Solve to see results</span>
+                </div>
+            </div>
+
+            <!-- History -->
+            <div class="section" style="flex:1; min-height:40px; max-height:70px; display:flex; flex-direction:column;">
+                <div class="section-title">📜 History <span class="badge" id="history-count">0</span></div>
+                <div class="list-container" id="history-list-container" style="max-height:60px;">
+                    <div id="history-list"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== CANVAS ===== -->
+        <div id="canvas-container">
+            <div id="right-toolbar">
+                <button class="btn btn-success" id="btn-solve">▶ Solve</button>
+                <button class="btn" id="btn-motion">▶ Motion</button>
+                <button class="btn btn-warning" id="btn-excel">📊 Excel</button>
+                <button class="btn btn-purple" id="btn-save">💾 Save</button>
+                <button class="btn" id="btn-load">📂 Load</button>
+                <button class="btn btn-danger" id="btn-reset">⟲</button>
+                <button class="btn" id="reset-view">⟲ View</button>
+            </div>
+
+            <div id="info-display">
+                <div><span class="label">📌 Status:</span> <span id="info-status">Ready</span></div>
+                <div><span class="label">📍 Nodes:</span> <span id="info-nodes">0</span></div>
+                <div><span class="label">🔗 Elements:</span> <span id="info-elements">0</span></div>
+                <div id="info-disp" style="display:none;">
+                    <span class="label">📏 Max Disp:</span> <span id="info-maxdisp">-</span><br>
+                    <span class="label">📊 Max Stress:</span> <span id="info-maxstress">-</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== STATUS ===== -->
+    <div id="status">🟢 Ready - Nodes start from #1</div>
+
+    <!-- ===== MODAL ===== -->
+    <div class="modal" id="edit-modal">
+        <div class="modal-content">
+            <h3 id="modal-title">Edit</h3>
+            <div class="row">
+                <label>X</label><input type="number" id="edit-x" step="1">
+                <label>Y</label><input type="number" id="edit-y" step="1">
+                <label>Z</label><input type="number" id="edit-z" step="1">
+            </div>
+            <div class="row" id="edit-element-row" style="display:none;">
+                <label>A</label><input type="number" id="edit-A" step="0.001" style="flex:0.4;">
+                <label>E</label><input type="number" id="edit-E" step="1" style="flex:0.4;">
+            </div>
+            <button class="btn btn-primary" id="modal-save">💾 Save</button>
+            <button class="btn btn-danger" id="modal-close" style="margin-top:4px;">✕ Cancel</button>
+        </div>
+    </div>
+
+    <input type="file" id="file-input" accept=".json" style="display:none">
+
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "https://cdn.jsdelivr.net/npm/three@0.157.0/build/three.module.js",
+                "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.157.0/examples/jsm/"
+            }
+        }
+    </script>
+
+    <script type="module">
+        import * as THREE from 'three';
+        import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+        // ============================================================
+        // STATE
+        // ============================================================
+        const state = {
+            nodes: [],
+            elements: [],
+            forces: [],
+            supports: [],
+            displacements: [],
+            stresses: [],
+            nodeCounter: 1,
+            elCounter: 0,
+            solved: false,
+            scale: 1,
+            motionActive: false,
+            animTime: 0,
+            unit: 'm',
+            forceUnit: 'N',
+            eUnit: 'GPa',
+        };
+
+        let dofMask = 0;
+        let editType = 'node';
+        let editId = null;
+        let history = JSON.parse(localStorage.getItem('fem_history') || '[]');
+
+        const $ = id => document.getElementById(id);
+        const status = $('status');
+        const statusMobile = $('status-mobile');
+
+        // ============================================================
+        // THREE.JS
+        // ============================================================
+        const container = $('canvas-container');
+        const scene = new THREE.Scene();
+        scene.background = new THREE.Color(0x0a0e1a);
+
+        const camera = new THREE.PerspectiveCamera(50, container.clientWidth / container.clientHeight, 0.1, 5000);
+        camera.position.set(200, 150, 300);
+        camera.lookAt(0, 0, 0);
+
+        const renderer = new THREE.WebGLRenderer({ antialias: true });
+        renderer.setSize(container.clientWidth, container.clientHeight);
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        container.appendChild(renderer.domElement);
+
+        const controls = new OrbitControls(camera, renderer.domElement);
+        controls.enableDamping = true;
+        controls.dampingFactor = 0.08;
+        controls.target.set(0, 0, 0);
+        controls.update();
+
+        // Lights
+        const ambient = new THREE.AmbientLight(0x334466, 0.8);
+        scene.add(ambient);
+        const dirLight = new THREE.DirectionalLight(0xffffff, 1.2);
+        dirLight.position.set(1, 2, 1);
+        scene.add(dirLight);
+        const backLight = new THREE.DirectionalLight(0x4488cc, 0.6);
+        backLight.position.set(-1, 0.5, -1);
+        scene.add(backLight);
+
+        // Grid
+        const grid = new THREE.GridHelper(400, 20, 0x2a4a7a, 0x1a2a4a);
+        scene.add(grid);
+
+        // Axes
+        const axes = new THREE.AxesHelper(80);
+        scene.add(axes);
+
+        // Groups
+        const nodeGroup = new THREE.Group();
+        const elemGroup = new THREE.Group();
+        const deformGroup = new THREE.Group();
+        const stressLabelGroup = new THREE.Group();
+        scene.add(nodeGroup);
+        scene.add(elemGroup);
+        scene.add(deformGroup);
+        scene.add(stressLabelGroup);
+
+        function getStressColor(value, minVal, maxVal) {
+            if (Math.abs(maxVal - minVal) < 1e-10) return new THREE.Color(0x3b82f6);
+            const t = (value - minVal) / (maxVal - minVal);
+            const color = new THREE.Color();
+            color.setHSL(0.66 - t * 0.66, 0.8, 0.5);
+            return color;
+        }
+
+        // ============================================================
+        // RENDER
+        // ============================================================
+        function renderScene() {
+            while (nodeGroup.children.length) nodeGroup.remove(nodeGroup.children[0]);
+            while (elemGroup.children.length) elemGroup.remove(elemGroup.children[0]);
+            while (deformGroup.children.length) deformGroup.remove(deformGroup.children[0]);
+            while (stressLabelGroup.children.length) stressLabelGroup.remove(stressLabelGroup.children[0]);
+
+            let minStress = Infinity;
+            let maxStress = -Infinity;
+            if (state.solved && state.stresses.length > 0) {
+                state.stresses.forEach(s => {
+                    if (s.value < minStress) minStress = s.value;
+                    if (s.value > maxStress) maxStress = s.value;
+                });
+            }
+
+            // Nodes
+            state.nodes.forEach(n => {
+                const geo = new THREE.SphereGeometry(10, 24, 24);
+                const mat = new THREE.MeshStandardMaterial({
+                    color: 0xffffff,
+                    emissive: 0x4488ff,
+                    emissiveIntensity: 0.15,
+                    roughness: 0.1,
+                    metalness: 0.3
+                });
+                const mesh = new THREE.Mesh(geo, mat);
+                mesh.position.set(n.x, n.y, n.z);
+                nodeGroup.add(mesh);
+
+                // Node label
+                const canvas = document.createElement('canvas');
+                canvas.width = 64;
+                canvas.height = 64;
+                const ctx = canvas.getContext('2d');
+                ctx.clearRect(0, 0, 64, 64);
+                ctx.fillStyle = '#88ccff';
+                ctx.font = 'bold 26px Arial';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText(n.id, 32, 32);
+                const texture = new THREE.CanvasTexture(canvas);
+                const spriteMat = new THREE.SpriteMaterial({ map: texture, transparent: true, depthTest: false });
+                const sprite = new THREE.Sprite(spriteMat);
+                sprite.position.set(n.x, n.y + 20, n.z);
+                sprite.scale.set(28, 28, 1);
+                nodeGroup.add(sprite);
+
+                // Displacement
+                if (state.solved) {
+                    const d = state.displacements.find(d => d.nodeId === n.id);
+                    if (d) {
+                        const mag = Math.sqrt(d.dx * d.dx + d.dy * d.dy + d.dz * d.dz);
+                        if (mag > 0.001) {
+                            const canvas2 = document.createElement('canvas');
+                            canvas2.width = 128;
+                            canvas2.height = 32;
+                            const ctx2 = canvas2.getContext('2d');
+                            ctx2.clearRect(0, 0, 128, 32);
+                            ctx2.fillStyle = '#facc15';
+                            ctx2.font = '9px Arial';
+                            ctx2.textAlign = 'center';
+                            ctx2.fillText(`dx=${d.dx.toFixed(2)} dy=${d.dy.toFixed(2)}`, 64, 16);
+                            const texture2 = new THREE.CanvasTexture(canvas2);
+                            const mat2 = new THREE.SpriteMaterial({ map: texture2, transparent: true, depthTest: false });
+                            const sprite2 = new THREE.Sprite(mat2);
+                            sprite2.position.set(n.x, n.y - 22, n.z);
+                            sprite2.scale.set(50, 14, 1);
+                            nodeGroup.add(sprite2);
+                        }
+                    }
+                }
+            });
+
+            // Elements
+            state.elements.forEach(el => {
+                const from = state.nodes.find(n => n.id === el.from);
+                const to = state.nodes.find(n => n.id === el.to);
+                if (!from || !to) return;
+
+                let color = 0x4488cc;
+                if (state.solved && state.stresses.length > 0) {
+                    const stress = state.stresses.find(s => s.elementId === el.id);
+                    if (stress) {
+                        const c = getStressColor(stress.value, minStress, maxStress);
+                        color = c.getHex();
+                    }
+                }
+
+                const pts = [
+                    new THREE.Vector3(from.x, from.y, from.z),
+                    new THREE.Vector3(to.x, to.y, to.z)
+                ];
+                const geo = new THREE.BufferGeometry().setFromPoints(pts);
+                const mat = new THREE.LineBasicMaterial({ color: color });
+                const line = new THREE.Line(geo, mat);
+                elemGroup.add(line);
+
+                // Element label
+                const midX = (from.x + to.x) / 2;
+                const midY = (from.y + to.y) / 2;
+                const midZ = (from.z + to.z) / 2;
+                const canvas = document.createElement('canvas');
+                canvas.width = 48;
+                canvas.height = 48;
+                const ctx = canvas.getContext('2d');
+                ctx.clearRect(0, 0, 48, 48);
+                ctx.fillStyle = '#4488cc';
+                ctx.font = 'bold 18px Arial';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText(el.id, 24, 24);
+                const texture = new THREE.CanvasTexture(canvas);
+                const spriteMat = new THREE.SpriteMaterial({ map: texture, transparent: true, depthTest: false });
+                const sprite = new THREE.Sprite(spriteMat);
+                sprite.position.set(midX, midY + 16, midZ);
+                sprite.scale.set(22, 22, 1);
+                elemGroup.add(sprite);
+
+                // Deformed
+                if (state.solved) {
+                    const df = state.displacements.find(d => d.nodeId === el.from);
+                    const dt = state.displacements.find(d => d.nodeId === el.to);
+                    if (df && dt) {
+                        const s = state.scale;
+                        const p1 = new THREE.Vector3(from.x + df.dx * s, from.y + df.dy * s, from.z + df.dz * s);
+                        const p2 = new THREE.Vector3(to.x + dt.dx * s, to.y + dt.dy * s, to.z + dt.dz * s);
+                        const dgeo = new THREE.BufferGeometry().setFromPoints([p1, p2]);
+                        const dmat = new THREE.LineDashedMaterial({
+                            color: 0xff6644,
+                            dashSize: 3,
+                            gapSize: 2
+                        });
+                        const dline = new THREE.Line(dgeo, dmat);
+                        dline.computeLineDistances();
+                        deformGroup.add(dline);
+                    }
+                }
+            });
+
+            // Supports
+            state.supports.forEach(s => {
+                const node = state.nodes.find(n => n.id === s.nodeId);
+                if (!node) return;
+                const ring = new THREE.TorusGeometry(14, 3, 8, 20);
+                const mat = new THREE.MeshStandardMaterial({
+                    color: 0x3b82f6,
+                    emissive: 0x1a3a6a,
+                    emissiveIntensity: 0.5
+                });
+                const mesh = new THREE.Mesh(ring, mat);
+                mesh.position.set(node.x, node.y, node.z);
+                mesh.rotation.x = Math.PI / 2;
+                nodeGroup.add(mesh);
+            });
+
+            // Forces
+            state.forces.forEach(f => {
+                const node = state.nodes.find(n => n.id === f.nodeId);
+                if (!node) return;
+                const dir = new THREE.Vector3(f.fx || 0, f.fy || 0, f.fz || 0);
+                if (dir.length() < 0.001) return;
+                dir.normalize();
+                const arrow = new THREE.ArrowHelper(dir, new THREE.Vector3(node.x, node.y, node.z), 35, 0xf59e0b, 14, 8);
+                deformGroup.add(arrow);
+            });
+
+            // Stress legend
+            if (state.solved && state.stresses.length > 0) {
+                const canvas = document.createElement('canvas');
+                canvas.width = 300;
+                canvas.height = 50;
+                const ctx = canvas.getContext('2d');
+                ctx.clearRect(0, 0, 300, 50);
+                
+                const grad = ctx.createLinearGradient(10, 15, 240, 15);
+                grad.addColorStop(0, '#3b82f6');
+                grad.addColorStop(0.33, '#22c55e');
+                grad.addColorStop(0.66, '#eab308');
+                grad.addColorStop(1, '#ef4444');
+                ctx.fillStyle = grad;
+                ctx.fillRect(10, 15, 230, 14);
+                ctx.strokeStyle = '#1e2a4a';
+                ctx.lineWidth = 1;
+                ctx.strokeRect(10, 15, 230, 14);
+                
+                ctx.fillStyle = '#94a3b8';
+                ctx.font = '9px Arial';
+                ctx.textAlign = 'left';
+                ctx.fillText(`Min: ${minStress.toFixed(1)} ${state.eUnit}`, 10, 42);
+                ctx.textAlign = 'right';
+                ctx.fillText(`Max: ${maxStress.toFixed(1)} ${state.eUnit}`, 240, 42);
+                ctx.textAlign = 'center';
+                ctx.fillStyle = '#60a5fa';
+                ctx.font = '8px Arial';
+                ctx.fillText('Stress Distribution', 125, 9);
+                
+                const texture = new THREE.CanvasTexture(canvas);
+                const mat = new THREE.SpriteMaterial({ map: texture, transparent: true, depthTest: false });
+                const sprite = new THREE.Sprite(mat);
+                sprite.position.set(0, -60, 0);
+                sprite.scale.set(140, 24, 1);
+                stressLabelGroup.add(sprite);
+            }
+
+            updateUI();
+            updateInfo();
+        }
+
+        // ============================================================
+        // UI
+        // ============================================================
+        function updateUI() {
+            // Nodes
+            const nodeList = $('node-list');
+            if (state.nodes.length === 0) {
+                nodeList.innerHTML = '<div class="empty-msg">no nodes</div>';
+            } else {
+                nodeList.innerHTML = state.nodes.map(n =>
+                    `<div class="list-item">
+                        <div class="info">
+                            <span class="id">#${n.id}</span>
+                            <span class="coords">(${n.x}, ${n.y}, ${n.z})</span>
+                        </div>
+                        <div class="actions">
+                            <button class="edit-btn" data-id="${n.id}" data-type="node">✎</button>
+                            <button class="del-btn" data-id="${n.id}" data-type="node">✕</button>
+                        </div>
+                    </div>`
+                ).join('');
+                attachListEvents();
+            }
+
+            // Elements
+            const elemList = $('elem-list');
+            if (state.elements.length === 0) {
+                elemList.innerHTML = '<div class="empty-msg">no elements</div>';
+            } else {
+                elemList.innerHTML = state.elements.map(el => {
+                    const stress = state.stresses.find(s => s.elementId === el.id);
+                    const s = stress ? ` σ=${stress.value.toFixed(1)}` : '';
+                    return `<div class="list-item">
+                        <div class="info">
+                            <span class="id">#${el.id}</span>
+                            <span class="coords">${el.from}→${el.to}</span>
+                            <span class="props">A=${el.A} E=${el.E}</span>
+                            ${s ? `<span class="stress">${s}</span>` : ''}
+                        </div>
+                        <div class="actions">
+                            <button class="edit-btn" data-id="${el.id}" data-type="element">✎</button>
+                            <button class="del-btn" data-id="${el.id}" data-type="element">✕</button>
+                        </div>
+                    </div>`;
+                }).join('');
+                attachListEvents();
+            }
+
+            $('node-count').textContent = state.nodes.length;
+            $('elem-count').textContent = state.elements.length;
+            updateHistory();
+        }
+
+        function attachListEvents() {
+            document.querySelectorAll('.list-item .edit-btn').forEach(btn => {
+                btn.onclick = (e) => {
+                    e.stopPropagation();
+                    const id = parseInt(btn.dataset.id);
+                    const type = btn.dataset.type;
+                    openEditModal(id, type);
+                };
+            });
+
+            document.querySelectorAll('.list-item .del-btn').forEach(btn => {
+                btn.onclick = (e) => {
+                    e.stopPropagation();
+                    const id = parseInt(btn.dataset.id);
+                    const type = btn.dataset.type;
+                    if (type === 'node') {
+                        state.nodes = state.nodes.filter(n => n.id !== id);
+                        state.elements = state.elements.filter(e => e.from !== id && e.to !== id);
+                        state.forces = state.forces.filter(f => f.nodeId !== id);
+                        state.supports = state.supports.filter(s => s.nodeId !== id);
+                        state.solved = false;
+                        renderScene();
+                        setStatus(`🗑 Deleted node #${id}`);
+                    } else {
+                        state.elements = state.elements.filter(e => e.id !== id);
+                        state.solved = false;
+                        renderScene();
+                        setStatus(`🗑 Deleted element #${id}`);
+                    }
+                };
+            });
+        }
+
+        function updateInfo() {
+            $('info-nodes').textContent = state.nodes.length;
+            $('info-elements').textContent = state.elements.length;
+            
+            if (state.solved) {
+                $('info-disp').style.display = 'block';
+                const maxDisp = state.displacements.reduce((max, d) => {
+                    const mag = Math.sqrt(d.dx * d.dx + d.dy * d.dy + d.dz * d.dz);
+                    return mag > max ? mag : max;
+                }, 0);
+                const maxStress = state.stresses.reduce((max, s) => Math.abs(s.value) > max ? Math.abs(s.value) : max, 0);
+                $('info-maxdisp').textContent = `${maxDisp.toFixed(3)} ${state.unit}`;
+                $('info-maxstress').textContent = `${maxStress.toFixed(1)} ${state.eUnit}`;
+                $('info-status').textContent = 'Solved ✓';
+            } else {
+                $('info-disp').style.display = 'none';
+                $('info-status').textContent = 'Ready';
+            }
+        }
+
+        function setStatus(msg) {
+            status.textContent = msg;
+            statusMobile.textContent = msg;
+        }
+
+        // ============================================================
+        // HISTORY
+        // ============================================================
+        function saveToHistory() {
+            if (state.nodes.length === 0) {
+                setStatus('⚠️ Nothing to save');
+                return;
+            }
+            
+            const project = {
+                id: Date.now(),
+                timestamp: new Date().toLocaleString(),
+                name: `Project ${history.length + 1}`,
+                unit: state.unit,
+                forceUnit: state.forceUnit,
+                eUnit: state.eUnit,
+                nodes: state.nodes,
+                elements: state.elements,
+                forces: state.forces,
+                supports: state.supports,
+                displacements: state.displacements,
+                stresses: state.stresses,
+                solved: state.solved,
+            };
+            
+            history.unshift(project);
+            if (history.length > 20) history.pop();
+            localStorage.setItem('fem_history', JSON.stringify(history));
+            updateHistory();
+            setStatus(`💾 Saved to history`);
+        }
+
+        function updateHistory() {
+            const list = $('history-list');
+            $('history-count').textContent = history.length;
+            
+            if (history.length === 0) {
+                list.innerHTML = '<div class="empty-msg">no saved projects</div>';
+                return;
+            }
+            
+            list.innerHTML = history.map((h, idx) =>
+                `<div class="list-item" style="border-left-color:#8b5cf6;">
+                    <div class="info">
+                        <span class="id" style="color:#8b5cf6;">📜</span>
+                        <span class="coords">${h.name}</span>
+                        <span class="props">${h.timestamp}</span>
+                    </div>
+                    <div class="actions">
+                        <button class="edit-btn load-history" data-idx="${idx}" style="color:#8b5cf6;">📂</button>
+                        <button class="del-btn" data-idx="${idx}">✕</button>
+                    </div>
+                </div>`
+            ).join('');
+            
+            list.querySelectorAll('.load-history').forEach(btn => {
+                btn.onclick = () => {
+                    const idx = parseInt(btn.dataset.idx);
+                    loadFromHistory(idx);
+                };
+            });
+            
+            list.querySelectorAll('.del-btn').forEach(btn => {
+                btn.onclick = () => {
+                    const idx = parseInt(btn.dataset.idx);
+                    history.splice(idx, 1);
+                    localStorage.setItem('fem_history', JSON.stringify(history));
+                    updateHistory();
+                    setStatus(`🗑 Removed from history`);
+                };
+            });
+        }
+
+        function loadFromHistory(idx) {
+            const project = history[idx];
+            if (!project) return;
+            
+            state.unit = project.unit || 'm';
+            state.forceUnit = project.forceUnit || 'N';
+            state.eUnit = project.eUnit || 'GPa';
+            state.nodes = project.nodes || [];
+            state.elements = project.elements || [];
+            state.forces = project.forces || [];
+            state.supports = project.supports || [];
+            state.displacements = project.displacements || [];
+            state.stresses = project.stresses || [];
+            state.solved = project.solved || false;
+            state.nodeCounter = state.nodes.length > 0 ? Math.max(...state.nodes.map(n => n.id)) + 1 : 1;
+            state.elCounter = state.elements.length > 0 ? Math.max(...state.elements.map(e => e.id)) + 1 : 0;
+            state.scale = 1;
+            
+            $('unit-length').value = state.unit;
+            $('unit-force').value = state.forceUnit;
+            $('unit-E').value = state.eUnit;
+            updateUnits();
+            
+            renderScene();
+            setStatus(`📂 Loaded: ${project.name}`);
+            
+            if (state.nodes.length > 0) {
+                const center = state.nodes.reduce((acc, n) => {
+                    acc.x += n.x; acc.y += n.y; acc.z += n.z;
+                    return acc;
+                }, {x: 0, y: 0, z: 0});
+                center.x /= state.nodes.length;
+                center.y /= state.nodes.length;
+                center.z /= state.nodes.length;
+                controls.target.set(center.x, center.y, center.z);
+                camera.position.set(center.x + 150, center.y + 100, center.z + 200);
+                controls.update();
+            }
+        }
+
+        // ============================================================
+        // UNITS
+        // ============================================================
+        function updateUnits() {
+            state.unit = $('unit-length').value;
+            state.forceUnit = $('unit-force').value;
+            state.eUnit = $('unit-E').value;
+
+            $('unit-display').textContent = `${state.unit} · ${state.forceUnit} · ${state.eUnit}`;
+            $('length-label').textContent = state.unit;
+            $('force-label').textContent = state.forceUnit;
+            $('E-label').textContent = state.eUnit;
+            $('area-label').textContent = `${state.unit}²`;
+        }
+
+        $('unit-length').onchange = updateUnits;
+        $('unit-force').onchange = updateUnits;
+        $('unit-E').onchange = updateUnits;
+        updateUnits();
+
+        // ============================================================
+        // FEM SOLVER
+        // ============================================================
+        function solveFEM() {
+            if (state.nodes.length < 2) {
+                setStatus('❌ Need at least 2 nodes');
+                return;
+            }
+            if (state.elements.length < 1) {
+                setStatus('❌ Need at least 1 element');
+                return;
+            }
+
+            setStatus('⏳ Solving...');
+
+            try {
+                const n = state.nodes.length;
+                const totalDOF = n * 3;
+                const K = Array.from({ length: totalDOF }, () => Array(totalDOF).fill(0));
+                const F = Array(totalDOF).fill(0);
+
+                const idToIdx = {};
+                state.nodes.forEach((node, i) => { idToIdx[node.id] = i; });
+
+                state.elements.forEach(el => {
+                    const from = state.nodes.find(n => n.id === el.from);
+                    const to = state.nodes.find(n => n.id === el.to);
+                    if (!from || !to) return;
+
+                    const i = idToIdx[el.from];
+                    const j = idToIdx[el.to];
+                    const dx = to.x - from.x;
+                    const dy = to.y - from.y;
+                    const dz = to.z - from.z;
+                    const L = Math.sqrt(dx * dx + dy * dy + dz * dz);
+                    if (L < 1e-10) return;
+
+                    const A = el.A || 0.01;
+                    const E = el.E || 210;
+                    const k = (A * E) / L;
+                    const l = dx / L, m = dy / L, n_ = dz / L;
+
+                    const idx = [i * 3, i * 3 + 1, i * 3 + 2, j * 3, j * 3 + 1, j * 3 + 2];
+                    const T = [l*l, l*m, l*n_, m*l, m*m, m*n_, n_*l, n_*m, n_*n_];
+
+                    for (let a = 0; a < 3; a++) {
+                        for (let b = 0; b < 3; b++) {
+                            K[idx[a]][idx[b]] += k * T[a * 3 + b];
+                            K[idx[a]][idx[b + 3]] += -k * T[a * 3 + b];
+                            K[idx[a + 3]][idx[b]] += -k * T[a * 3 + b];
+                            K[idx[a + 3]][idx[b + 3]] += k * T[a * 3 + b];
+                        }
+                    }
+                });
+
+                state.forces.forEach(f => {
+                    const idx = idToIdx[f.nodeId];
+                    if (idx !== undefined) {
+                        F[idx * 3] += f.fx || 0;
+                        F[idx * 3 + 1] += f.fy || 0;
+                        F[idx * 3 + 2] += f.fz || 0;
+                    }
+                });
+
+                const fixedDOF = new Set();
+                state.supports.forEach(s => {
+                    const idx = idToIdx[s.nodeId];
+                    if (idx !== undefined) {
+                        for (let d = 0; d < 3; d++) {
+                            if (s.dofMask & (1 << d)) {
+                                fixedDOF.add(idx * 3 + d);
+                            }
+                        }
+                    }
+                });
+
+                const freeDOF = [];
+                for (let i = 0; i < totalDOF; i++) {
+                    if (!fixedDOF.has(i)) freeDOF.push(i);
+                }
+
+                if (freeDOF.length === 0) {
+                    setStatus('❌ All DOF fixed');
+                    return;
+                }
+
+                const Kff = freeDOF.map(i => freeDOF.map(j => K[i][j]));
+                const Ff = freeDOF.map(i => F[i]);
+                const Uf = solveLinear(Kff, Ff);
+
+                const U = Array(totalDOF).fill(0);
+                freeDOF.forEach((idx, i) => U[idx] = Uf[i]);
+
+                state.displacements = [];
+                state.nodes.forEach(node => {
+                    const idx = idToIdx[node.id];
+                    state.displacements.push({
+                        nodeId: node.id,
+                        dx: U[idx * 3] || 0,
+                        dy: U[idx * 3 + 1] || 0,
+                        dz: U[idx * 3 + 2] || 0
+                    });
+                });
+
+                state.stresses = [];
+                state.elements.forEach(el => {
+                    const from = state.nodes.find(n => n.id === el.from);
+                    const to = state.nodes.find(n => n.id === el.to);
+                    if (!from || !to) return;
+                    const df = state.displacements.find(d => d.nodeId === el.from);
+                    const dt = state.displacements.find(d => d.nodeId === el.to);
+                    if (!df || !dt) return;
+                    const dx = to.x - from.x;
+                    const dy = to.y - from.y;
+                    const dz = to.z - from.z;
+                    const L = Math.sqrt(dx * dx + dy * dy + dz * dz);
+                    if (L < 1e-10) return;
+                    const l = dx / L, m = dy / L, n_ = dz / L;
+                    const du = (dt.dx - df.dx) * l + (dt.dy - df.dy) * m + (dt.dz - df.dz) * n_;
+                    state.stresses.push({ elementId: el.id, value: el.E * du / L });
+                });
+
+                state.solved = true;
+                state.scale = 1;
+                renderScene();
+
+                const maxDisp = state.displacements.reduce((max, d) => {
+                    const mag = Math.sqrt(d.dx * d.dx + d.dy * d.dy + d.dz * d.dz);
+                    return mag > max ? mag : max;
+                }, 0);
+                const maxStress = state.stresses.reduce((max, s) => Math.abs(s.value) > max ? Math.abs(s.value) : max, 0);
+
+                setStatus(`✅ Solved! Max Disp: ${maxDisp.toFixed(4)} ${state.unit}, Max Stress: ${maxStress.toFixed(2)} ${state.eUnit}`);
+                $('results-display').innerHTML = `
+                    ✅ Solved<br>
+                    📏 Max Disp: ${maxDisp.toFixed(4)} ${state.unit}<br>
+                    📊 Max Stress: ${maxStress.toFixed(2)} ${state.eUnit}
+                `;
+
+            } catch (error) {
+                setStatus(`❌ Error: ${error.message}`);
+            }
+        }
+
+        function solveLinear(A, b) {
+            const n = A.length;
+            if (n === 0) return [];
+            const aug = A.map((row, i) => [...row, b[i]]);
+            for (let col = 0; col < n; col++) {
+                let maxRow = col;
+                let maxVal = Math.abs(aug[col][col]);
+                for (let i = col + 1; i < n; i++) {
+                    const val = Math.abs(aug[i][col]);
+                    if (val > maxVal) { maxVal = val; maxRow = i; }
+                }
+                if (maxRow !== col) [aug[col], aug[maxRow]] = [aug[maxRow], aug[col]];
+                const pivot = aug[col][col];
+                if (Math.abs(pivot) < 1e-12) continue;
+                for (let j = col; j <= n; j++) aug[col][j] /= pivot;
+                for (let i = 0; i < n; i++) {
+                    if (i === col) continue;
+                    const factor = aug[i][col];
+                    for (let j = col; j <= n; j++) aug[i][j] -= factor * aug[col][j];
+                }
+            }
+            return aug.map(row => row[n]);
+        }
+
+        // ============================================================
+        // EXCEL EXPORT
+        // ============================================================
+        function exportExcel() {
+            if (!state.solved) {
+                setStatus('❌ Solve first');
+                return;
+            }
+
+            let csv = 'FEM Goharimanesh - Results\n';
+            csv += `Unit: ${state.unit}, Force: ${state.forceUnit}, E: ${state.eUnit}\n\n`;
+            
+            csv += 'NODE DISPLACEMENTS\n';
+            csv += 'Node ID, DX, DY, DZ, Magnitude\n';
+            state.displacements.forEach(d => {
+                const mag = Math.sqrt(d.dx * d.dx + d.dy * d.dy + d.dz * d.dz);
+                csv += `${d.nodeId},${d.dx.toFixed(4)},${d.dy.toFixed(4)},${d.dz.toFixed(4)},${mag.toFixed(4)}\n`;
+            });
+            
+            csv += '\nELEMENT STRESSES\n';
+            csv += 'Element ID, Stress\n';
+            state.stresses.forEach(s => {
+                csv += `${s.elementId},${s.value.toFixed(2)}\n`;
+            });
+            
+            csv += '\nFORCES\n';
+            csv += 'Node ID, FX, FY, FZ\n';
+            state.forces.forEach(f => {
+                csv += `${f.nodeId},${f.fx},${f.fy},${f.fz}\n`;
+            });
+            
+            csv += '\nSUPPORTS\n';
+            csv += 'Node ID, DOF Mask\n';
+            state.supports.forEach(s => {
+                csv += `${s.nodeId},${s.dofMask}\n`;
+            });
+
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'fem_results.csv';
+            a.click();
+            setStatus('📊 Excel exported');
+        }
+
+        // ============================================================
+        // EDIT MODAL
+        // ============================================================
+        function openEditModal(id, type) {
+            editType = type;
+            editId = id;
+            
+            const modal = $('edit-modal');
+            const title = $('modal-title');
+            const elementRow = $('edit-element-row');
+            const xLabel = document.querySelector('#edit-modal .row label:first-child');
+            const yLabel = document.querySelector('#edit-modal .row label:nth-child(3)');
+            
+            if (type === 'node') {
+                const node = state.nodes.find(n => n.id === id);
+                if (!node) return;
+                title.textContent = `✎ Edit Node #${id}`;
+                $('edit-x').value = node.x;
+                $('edit-y').value = node.y;
+                $('edit-z').value = node.z;
+                elementRow.style.display = 'none';
+                $('edit-z').style.display = 'inline-block';
+                xLabel.textContent = 'X';
+                yLabel.textContent = 'Y';
+                document.querySelector('#edit-modal .row label:nth-child(5)').textContent = 'Z';
+            } else {
+                const el = state.elements.find(e => e.id === id);
+                if (!el) return;
+                title.textContent = `✎ Edit Element #${id}`;
+                $('edit-x').value = el.from;
+                $('edit-y').value = el.to;
+                $('edit-z').value = 0;
+                $('edit-A').value = el.A;
+                $('edit-E').value = el.E;
+                elementRow.style.display = 'flex';
+                $('edit-z').style.display = 'none';
+                xLabel.textContent = 'From';
+                yLabel.textContent = 'To';
+            }
+            
+            modal.classList.add('active');
+        }
+
+        $('modal-close').onclick = () => {
+            $('edit-modal').classList.remove('active');
+        };
+
+        $('modal-save').onclick = () => {
+            if (editType === 'node') {
+                const node = state.nodes.find(n => n.id === editId);
+                if (node) {
+                    node.x = parseFloat($('edit-x').value) || 0;
+                    node.y = parseFloat($('edit-y').value) || 0;
+                    node.z = parseFloat($('edit-z').value) || 0;
+                    state.solved = false;
+                    renderScene();
+                    setStatus(`✎ Updated node #${editId}`);
+                }
+            } else {
+                const el = state.elements.find(e => e.id === editId);
+                if (el) {
+                    el.from = parseInt($('edit-x').value) || 0;
+                    el.to = parseInt($('edit-y').value) || 0;
+                    el.A = parseFloat($('edit-A').value) || 0.01;
+                    el.E = parseFloat($('edit-E').value) || 210;
+                    state.solved = false;
+                    renderScene();
+                    setStatus(`✎ Updated element #${editId}`);
+                }
+            }
+            $('edit-modal').classList.remove('active');
+        };
+
+        $('edit-modal').addEventListener('click', (e) => {
+            if (e.target === $('edit-modal')) {
+                $('edit-modal').classList.remove('active');
+            }
+        });
+
+        // ============================================================
+        // EVENTS
+        // ============================================================
+
+        // Add Node
+        $('btn-node').onclick = () => {
+            const x = parseFloat($('nx').value) || 0;
+            const y = parseFloat($('ny').value) || 0;
+            const z = parseFloat($('nz').value) || 0;
+            const id = state.nodeCounter++;
+            state.nodes.push({ id, x, y, z });
+            state.solved = false;
+            renderScene();
+            setStatus(`✅ Added node #${id} (${x}, ${y}, ${z}) ${state.unit}`);
+            if (state.nodes.length === 1) {
+                controls.target.set(x, y, z);
+                camera.position.set(x + 150, y + 100, z + 200);
+                controls.update();
+            }
+        };
+
+        // Add Element
+        $('btn-element').onclick = () => {
+            const from = parseInt($('el-from').value);
+            const to = parseInt($('el-to').value);
+            const A = parseFloat($('el-A').value) || 0.01;
+            const E = parseFloat($('el-E').value) || 210;
+
+            if (from === to) { setStatus('❌ Cannot connect to itself'); return; }
+            if (!state.nodes.find(n => n.id === from) || !state.nodes.find(n => n.id === to)) {
+                setStatus('❌ Node not found');
+                return;
+            }
+            const dup = state.elements.find(e => 
+                (e.from === from && e.to === to) || (e.from === to && e.to === from)
+            );
+            if (dup) { setStatus('⚠️ Element already exists'); return; }
+
+            const id = state.elCounter++;
+            state.elements.push({ id, from, to, A, E });
+            state.solved = false;
+            renderScene();
+            setStatus(`🔗 Added element #${id}: ${from}→${to}`);
+        };
+
+        // DOF
+        document.querySelectorAll('.dof-btn').forEach(btn => {
+            btn.onclick = () => {
+                const dof = parseInt(btn.dataset.dof);
+                if (dofMask & (1 << dof)) {
+                    dofMask &= ~(1 << dof);
+                    btn.style.background = '#1e2a4a';
+                } else {
+                    dofMask |= (1 << dof);
+                    btn.style.background = '#3b82f6';
+                }
+            };
+        });
+
+        // Force
+        $('btn-force').onclick = () => {
+            const nodeId = parseInt($('action-node').value);
+            const fx = parseFloat($('fx').value) || 0;
+            const fy = parseFloat($('fy').value) || 0;
+            const fz = parseFloat($('fz').value) || 0;
+            if (!state.nodes.find(n => n.id === nodeId)) {
+                setStatus('❌ Node not found');
+                return;
+            }
+            state.forces.push({ nodeId, fx, fy, fz });
+            state.solved = false;
+            renderScene();
+            setStatus(`⚡ Force on node #${nodeId}: (${fx}, ${fy}, ${fz}) ${state.forceUnit}`);
+        };
+
+        // Support
+        $('btn-support').onclick = () => {
+            const nodeId = parseInt($('action-node').value);
+            if (!state.nodes.find(n => n.id === nodeId)) {
+                setStatus('❌ Node not found');
+                return;
+            }
+            if (dofMask === 0) {
+                setStatus('⚠️ Select at least one DOF');
+                return;
+            }
+            state.supports.push({ nodeId, dofMask });
+            state.solved = false;
+            renderScene();
+            setStatus(`🔒 Support on node #${nodeId} (DOF: ${dofMask})`);
+        };
+
+        // Solve
+        $('btn-solve').onclick = solveFEM;
+
+        // Motion
+        let motionInterval = null;
+        $('btn-motion').onclick = () => {
+            if (!state.solved) { setStatus('❌ Solve first'); return; }
+            if (motionInterval) {
+                clearInterval(motionInterval);
+                motionInterval = null;
+                state.scale = 1;
+                $('btn-motion').style.background = '#1e2a4a';
+                renderScene();
+                setStatus('⏸ Motion stopped');
+                return;
+            }
+            state.animTime = 0;
+            $('btn-motion').style.background = '#3b82f6';
+            setStatus('▶ Motion active');
+            motionInterval = setInterval(() => {
+                state.animTime += 0.03;
+                state.scale = 0.3 + 0.7 * (0.5 + 0.5 * Math.sin(state.animTime * 2.5));
+                renderScene();
+            }, 50);
+        };
+
+        // Save
+        $('btn-save').onclick = saveToHistory;
+
+        // Load
+        $('btn-load').onclick = () => {
+            $('file-input').click();
+        };
+
+        $('file-input').onchange = (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = (ev) => {
+                try {
+                    const data = JSON.parse(ev.target.result);
+                    state.unit = data.unit || 'm';
+                    state.forceUnit = data.forceUnit || 'N';
+                    state.eUnit = data.eUnit || 'GPa';
+                    state.nodes = data.nodes || [];
+                    state.elements = data.elements || [];
+                    state.forces = data.forces || [];
+                    state.supports = data.supports || [];
+                    state.displacements = data.displacements || [];
+                    state.stresses = data.stresses || [];
+                    state.solved = data.solved || false;
+                    state.nodeCounter = state.nodes.length > 0 ? Math.max(...state.nodes.map(n => n.id)) + 1 : 1;
+                    state.elCounter = state.elements.length > 0 ? Math.max(...state.elements.map(e => e.id)) + 1 : 0;
+                    
+                    $('unit-length').value = state.unit;
+                    $('unit-force').value = state.forceUnit;
+                    $('unit-E').value = state.eUnit;
+                    updateUnits();
+                    
+                    renderScene();
+                    setStatus(`📂 Loaded from file`);
+                } catch (err) {
+                    setStatus(`❌ Error: ${err.message}`);
+                }
+            };
+            reader.readAsText(file);
+            e.target.value = '';
+        };
+
+        // Excel
+        $('btn-excel').onclick = exportExcel;
+
+        // Reset
+        $('btn-reset').onclick = () => {
+            if (motionInterval) {
+                clearInterval(motionInterval);
+                motionInterval = null;
+                $('btn-motion').style.background = '#1e2a4a';
+            }
+            state.nodes = [];
+            state.elements = [];
+            state.forces = [];
+            state.supports = [];
+            state.displacements = [];
+            state.stresses = [];
+            state.nodeCounter = 1;
+            state.elCounter = 0;
+            state.solved = false;
+            state.scale = 1;
+            renderScene();
+            setStatus('⟲ Reset complete');
+            $('results-display').innerHTML = '<span style="color:#64748b;">Run Solve to see results</span>';
+            camera.position.set(200, 150, 300);
+            controls.target.set(0, 0, 0);
+            controls.update();
+        };
+
+        // Reset view
+        $('reset-view').onclick = () => {
+            if (state.nodes.length > 0) {
+                const center = state.nodes.reduce((acc, n) => {
+                    acc.x += n.x; acc.y += n.y; acc.z += n.z;
+                    return acc;
+                }, {x: 0, y: 0, z: 0});
+                center.x /= state.nodes.length;
+                center.y /= state.nodes.length;
+                center.z /= state.nodes.length;
+                controls.target.set(center.x, center.y, center.z);
+                camera.position.set(center.x + 150, center.y + 100, center.z + 200);
+            } else {
+                camera.position.set(200, 150, 300);
+                controls.target.set(0, 0, 0);
+            }
+            controls.update();
+        };
+
+        // ============================================================
+        // RESIZE
+        // ============================================================
+        function resizeRenderer() {
+            const w = container.clientWidth;
+            const h = container.clientHeight;
+            camera.aspect = w / h;
+            camera.updateProjectionMatrix();
+            renderer.setSize(w, h);
+        }
+
+        window.addEventListener('resize', resizeRenderer);
+        window.addEventListener('orientationchange', () => {
+            setTimeout(resizeRenderer, 300);
+        });
+
+        // ============================================================
+        // ANIMATION
+        // ============================================================
+        function animate() {
+            requestAnimationFrame(animate);
+            controls.update();
+            renderer.render(scene, camera);
+        }
+
+        // ============================================================
+        // START
+        // ============================================================
+        renderScene();
+        setStatus('🟢 Ready - Nodes start from #1');
+        console.log('🚀 FEM Goharimanesh - Mobile Friendly');
+
+        animate();
+        resizeRenderer();
+    </script>
+</body>
+</html>
